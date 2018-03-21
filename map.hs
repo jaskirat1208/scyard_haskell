@@ -1,3 +1,5 @@
+module GeeksLand where
+
 import Data.Graph.Inductive        
 import Data.Graph.Inductive.Example
 base_hillock::Int ->Gr Int (Int, Int, Int)
@@ -20,5 +22,25 @@ edges_of_hillocks = labEdges (base_hillock 1) ++ labEdges (base_hillock 15) ++ l
 
 countryside::Gr Int (Int, Int, Int)
 countryside = mkGraph (vertices_of_hillocks) (edges_of_hillocks)
+
+
+vertices_of_hill_demo = [(z,z) | z <- [85..112]]
+bus_edges_of_hill_demo = (concat [[(84+i,84+2*i+1,(0,1,0)),(84+i,84+2*i+2,(0,1,0))]| i<-[2..10]]) ++ [(85,86,(0,1,0)), (85,87,(0,1,0)),(85,88,(0,1,0))]
+taxi_edges_of_hill_demo = [(84+i,i+85,(1,0,0)) | i <- [2,3] ++ [5..9] ++ [11..21] ] ++ [(88,86,(1,0,0)),(94,89,(1,0,0)),(106,95,(1,0,0))]
+
+city::Gr Int (Int, Int, Int)
+city = mkGraph vertices_of_hill_demo (bus_edges_of_hill_demo ++ taxi_edges_of_hill_demo)
+
+
+city_countryside_connectors = [(i,107+(i-95) `div` 2,(1,0,0) )| i<-[95..106]] ++ [(107 + (i `div` 2), j, (1,0,0) )| (i,j)<-(zip [0..] [12,13,26,27,40,41,54,55,68,69,82,83])]        --edges that will connect city and countryside: vertices: 107 to 112
+
+flight_connectors = [(85,i,(0,0,1))| i <- [1,15,29,43,57,71] ] ++ [(i,j,(0,0,1))| (i,j) <- zip [1,15,29,43,57,71] [15,29,43,57,71,1] ]
+
+
+
+--map = city U countryside  U city_countryside_connectors
+geeksland::Gr Int (Int, Int, Int)
+geeksland = mkGraph ((labNodes city) ++ (labNodes countryside)) ((labEdges city) ++ (labEdges countryside)++ city_countryside_connectors ++ flight_connectors)
+
 
 
