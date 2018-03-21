@@ -1,5 +1,5 @@
-import Data.Graph.Inductive
-import Data.Graph
+import Data.Graph.Inductive        
+import Data.Graph.Inductive.Example
 base_hillock::Int ->Gr Int (Int, Int, Int)
 base_hillock i = mkGraph (vertices_of_base_hillock i) (edges_of_base_hillock i)
 vertices_of_base_hillock i = (zip [i..(i+12)] [i..])
@@ -10,8 +10,15 @@ edges_of_base_hillock i = (bus_edges i) ++ (taxi_edges i)
 
 
 
-conn_vertices = []
-conn_edges = []
--- unify_graphs::Gr Int (Int, Int, Int) -> Gr Int (Int, Int, Int) -> Gr Int (Int, Int, Int)
--- unify_graphs::Graph gr => gr a b -> gr a b -> gr a b
--- unify_graphs gr x1 y1 (gr x2 y2) = mkGraph (x1++x2) (y1++y2)
+conn_vertices = [(z,z) | z <- [14,28,42,56,70,84] ]
+conn_edges_countryside = concat [ [(z,z-4,(1,0,0)),(z,z-3,(1,0,0)),(z,(z+6) `mod` 84,(1,0,0)), (z,(z+7) `mod` 84,(1,0,0)) ] |z <- [14,28,42,56,70,84]]
+conn_edges = [] ++ conn_edges_countryside
+vertices_of_hillocks = labNodes (base_hillock 1) ++ labNodes (base_hillock 15) ++ labNodes (base_hillock 29) ++ labNodes (base_hillock 43) ++ labNodes (base_hillock 57) ++ labNodes (base_hillock 71) ++ conn_vertices 
+edges_of_hillocks = labEdges (base_hillock 1) ++ labEdges (base_hillock 15) ++ labEdges (base_hillock 29) ++ labEdges (base_hillock 43) ++ labEdges (base_hillock 57) ++ labEdges (base_hillock 71) ++ conn_edges
+
+
+
+countryside::Gr Int (Int, Int, Int)
+countryside = mkGraph (vertices_of_hillocks) (edges_of_hillocks)
+
+
