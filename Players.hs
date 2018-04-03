@@ -118,7 +118,6 @@ move players y  | y>6 || y<=0 = do
                                                 return players
                                     else
                                         do
-                                            let new_changed_detective = (a,x,c,d,e) where (a,b,c,d,e) = changed_detective
-                                            let newList = (take (y-1) (fst players) ) ++[new_changed_detective] ++(drop y (fst players))
-                                            print (newList, snd players)
-                                            return (newList,snd players)
+                                            putStrLn "Move Complete. Final State: "
+                                            print (snd (check_valid_move players x y_str y))
+                                            return (snd (check_valid_move players x y_str y)) 
