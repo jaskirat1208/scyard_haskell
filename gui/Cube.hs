@@ -130,10 +130,10 @@ drawIsland2 x y z = do
     -- drawGreenEdges (x+0.05) (y) z (x+0.05) (y-0.11) z
     -- drawGreenEdges (x-0.05) (y-0.05) z (x-0.1) (y-0.05) z
     -- drawGreenEdges (x-0.05) (y-0.05) z (x-0.05) (y-0.11) z
-    -- drawRedEdges (x+0.05) (y+0.05) z (x+0.05) (y-0.05) z
-    -- drawRedEdges (x+0.05) (y-0.05) z (x-0.05) (y-0.05) z
-    -- drawRedEdges (x-0.05) (y-0.05) z (x-0.05) (y+0.05) z
-    -- drawRedEdges (x-0.05) (y+0.05) z (x+0.05) (y+0.05) z
+    drawRedEdges (x+0.05) (y) z (x) (y-0.05) z
+    drawRedEdges (x+0.05) (y) z (x) (y+0.05) z
+    drawRedEdges (x-0.05) (y) z (x) (y+0.05) z
+    drawRedEdges (x-0.05) (y) z (x) (y-0.05) z
     drawRedEdges (x-0.1) (y-0.05) z (x-0.1) (y+0.05) z
     drawRedEdges (x-0.1) (y+0.05) z (x-0.05) (y+0.11) z
     drawRedEdges (x-0.05) (y+0.11) z (x+0.05) (y+0.11) z

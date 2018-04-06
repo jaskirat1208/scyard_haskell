@@ -9,11 +9,8 @@ import Cube
 data Quadrup a b c d = Quadrup a b c d deriving Show
 
 
-createVector x y z 	| x>0 && y >0.1 = Vector3 (x*8000-200) ((y*8000)-(200::GLfloat)) z 
-					| x<0 && y>0.1 = Vector3 (x*8000+200) ((y*8000)-(200::GLfloat)) z
-					| x<0 && y<0.1 = Vector3 (x*8000+200) ((y*8000)+(200::GLfloat)) z
-					| x>0 && y<0.1 = Vector3 (x*8000-200) ((y*8000)+(200::GLfloat)) z
-					| otherwise = Vector3 (x*8000-200) ((y*8000)-(200::GLfloat)) z
+createVector x y z = Vector3 (x*8000*0.98) ((y*8000*0.98)) z 
+
 dummyfunc (Quadrup a x y z) = preservingMatrix $ do
       -- color $ Color3 x y z
       translate $ createVector x y z
@@ -23,8 +20,6 @@ dummyfunc (Quadrup a x y z) = preservingMatrix $ do
 -- getparams n = ( list_map n 
 
 list_map::Int -> Quadrup Int Float Float Float
-list_map 85 = Quadrup 85 0 0 (1::GLfloat) 
-list_map 86 = Quadrup 86 0 0.09 (1::GLfloat) 
 list_map 1  = Quadrup 1 (-0.3) 0.5 0.0 
 list_map 2  = Quadrup 2 (-0.35000002) 0.45 0.0
 list_map 3  = Quadrup 3 (-0.35000002) 0.55 0.0
@@ -80,7 +75,74 @@ list_map 52 = Quadrup 52 0.25 (-0.61) 0.0
 list_map 53 = Quadrup 53 0.20000002 (-0.55) 0.0
 list_map 54 = Quadrup 54 0.20000002 (-0.45) 0.0
 list_map 55 = Quadrup 55 0.25 (-0.39) 0.0
-list_map 56 = Quadrup 56 0 (-0.6) 0
+list_map 56 = Quadrup 56 0 (-0.56) 0
+list_map 57 = Quadrup 57 (-0.3) (-0.5) 0.0
+list_map 58 = Quadrup 58 (-0.25) (-0.55) 0.0
+list_map 59 = Quadrup 59 (-0.35) (-0.55) 0.0
+list_map 60 = Quadrup 60 (-0.35) (-0.45) 0.0
+list_map 61 = Quadrup 61 (-0.25) (-0.45) 0.0
+list_map 62 = Quadrup 62 (-0.20) (-0.55) 0.0
+list_map 63 = Quadrup 63 (-0.25) (-0.60) 0.0
+list_map 64 = Quadrup 64 (-0.35) (-0.60) 0.0
+list_map 65 = Quadrup 65 (-0.40) (-0.55) 0.0
+list_map 66 = Quadrup 66 (-0.40) (-0.45) 0.0
+list_map 67 = Quadrup 67 (-0.35) (-0.40) 0.0
+list_map 68 = Quadrup 68 (-0.25) (-0.40) 0.0
+list_map 69 = Quadrup 69 (-0.20) (-0.45) 0.0
+list_map 70 = Quadrup 70 (-0.45) (-0.25) 0
+list_map 71 = Quadrup 71 (-0.5) (-0.04) 0.0
+list_map 72 = Quadrup 72 (-0.5) (-0.09) 0.0
+list_map 73 = Quadrup 73 (-0.55) (-0.04) 0.0
+list_map 74 = Quadrup 74 (-0.5) (0.01) 0.0
+list_map 75 = Quadrup 75 (-0.45) (-0.04) 0.0
+list_map 76 = Quadrup 76 (-0.45) (-0.15) 0
+list_map 77 = Quadrup 77 (-0.55) (-0.15) 0
+list_map 78 = Quadrup 78 (-0.60) (-0.09) 0
+list_map 79 = Quadrup 79 (-0.60) (0.01) 0
+list_map 80 = Quadrup 80 (-0.55) (0.07) 0
+list_map 81 = Quadrup 81 (-0.45) (0.07) 0
+list_map 82 = Quadrup 82 (-0.40) (0.01) 0
+list_map 83 = Quadrup 83 (-0.4) (-0.09) 0
+list_map 84 = Quadrup 84 (-0.45) (0.25) 0
+list_map 85 = Quadrup 85 0 0 (1::GLfloat) 
+list_map 86 = Quadrup 86 0 0.09 (1::GLfloat) 
+list_map 87 = Quadrup 87 (0.080) (-0.06) 0
+list_map 88 = Quadrup 88 (-0.080) (-0.06) 0
+list_map 89 = Quadrup 89 (-0.080) (0.15) 0
+list_map 90 = Quadrup 90 (0.080) (0.15) 0
+list_map 91 = Quadrup 91 (0.19) 0 0
+list_map 92 = Quadrup 92 (0.080) (-0.18) 0
+list_map 93 = Quadrup 93 (-0.080) (-0.18) 0
+list_map 94 = Quadrup 94 (-0.19) 0 0
+list_map 95 = Quadrup 95 (-0.16) (0.21) 0
+list_map 96 = Quadrup 96 (-0.04) (0.24) 0
+list_map 97 = Quadrup 97 (0.04) (0.24) 0
+list_map 98 = Quadrup 98 (0.16) (0.21) 0
+list_map 99 = Quadrup 99 (0.24) (0.06) 0
+list_map 100 = Quadrup 100 (0.24) (-0.07) 0
+list_map 101 = Quadrup 101 (0.16) (-0.21) 0
+list_map 102 = Quadrup 102 (0.04) (-0.24) 0
+list_map 103 = Quadrup 103 (-0.04) (-0.24) 0
+list_map 104 = Quadrup 104 (-0.16) (-0.21) 0
+list_map 105 = Quadrup 105 (-0.24) (-0.07) 0
+list_map 106 = Quadrup 106 (-0.24) (0.06) 0
+list_map 112 = Quadrup 112 (-0.32) (0) 0
+list_map 109 = Quadrup 109 (0.32) (0) 0
+list_map 107 = Quadrup 107 (-0.1) (0.35) 0
+list_map 108 = Quadrup 108 (0.1) (0.35) 0
+list_map 111 = Quadrup 111 (-0.1) (-0.35) 0
+list_map 110 = Quadrup 110 (0.1) (-0.35) 0
+-- drawVertex (0.1) (0.35) 0
+-- drawVertex (-0.1) (-0.35) 0
+-- drawVertex (0.1) (-0.35) 0
+-- drawVertex (0) (0.6) 0
+-- drawVertex (0) (-0.6) 0
+-- drawVertex (-0.45) (0.25) 0
+-- drawVertex (0.45) (0.25) 0
+-- drawVertex (-0.45) (-0.3) 0
+-- drawVertex (0.45) (-0.3) 0
+
+list_map x = Quadrup 10000 10 10 10 
 display :: DisplayCallback
 display = do 
 	let color3f r g b = color $ Color3 r g (b :: GLfloat)
@@ -91,7 +153,7 @@ display = do
 	-- 	color3f 1 0 0
 	scale 0.0002 0.0002 (0.0001::GLfloat)
   	-- stringWidth 50
-  	forM_ ([1..55]) (\x -> dummyfunc (list_map x))
+  	forM_ ([1..112]) (\x -> dummyfunc (list_map x))
   	-- dummyfunc (list_map 85) 
  --  	dummyfunc 86 0 0.09 (1::GLfloat) 
  --  	dummyfunc 1 (-0.3) 0.5 0.0 
