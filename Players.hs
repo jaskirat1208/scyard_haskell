@@ -10,26 +10,26 @@ type Black_t = Int
 type Position = Node
 type Detective = (Name,Position,Foot,Ropeway, Heli)
 type Criminal = (Name,Position,Foot,Ropeway,Heli,Black_t)
-type GameState = ([Detective],Criminal)
+type PlayerState = ([Detective],Criminal)
 mark::Detective 
 mark = ("Mark", 2,15, 7, 10)
 
 marcus::Detective
-marcus = ("Marcus", 1, 15, 7, 10)
+marcus = ("Marcus", 14, 15, 7, 10)
 
 mike::Detective
-mike = ("Mike", 3, 15, 7, 10)
+mike = ("Mike", 39, 15, 7, 10)
 
 james::Detective
-james = ("James", 4, 15, 7, 10)
+james = ("James", 45, 15, 7, 10)
 
 crick::Detective
-crick = ("Crick", 5, 15, 7, 10)
+crick = ("Crick", 56, 15, 7, 10)
 
 tom::Criminal
-tom = ("Tom", 6, 7, 5, 4, 2)
+tom = ("Tom", 87, 7, 5, 4, 2)
 
-players::GameState
+players::PlayerState
 players = ([mark,marcus,mike,james,crick],tom)
 
 
@@ -38,7 +38,7 @@ deleteAt idx xs = lft ++ rgt  where (lft, (_:rgt)) = splitAt idx xs
 
 
 getDetective gs turn = ((fst gs) !! (turn-1))
-getKiller gs turn    = snd gs
+getKiller gs _    = snd gs
 
 getKillerPosition gs turn = x where (a,x,c,d,e,f) = getKiller gs turn
 getDetectivePosition gs turn = x where (a,x,c,d,e) = getDetective gs turn
@@ -60,7 +60,7 @@ node_check gs node turn | turn == 6 = find (==node) (neighbors geeksland (getKil
                         | otherwise = find (==node) (neighbors geeksland (getDetectivePosition gs turn)) /= Nothing
 
 
-ticket_exis_check::GameState ->String->Int->Bool
+ticket_exis_check::PlayerState ->String->Int->Bool
 ticket_exis_check gs ticket turn | turn == 6 = checkKillerTicket gs turn ticket 
                                  | otherwise = checkDetectiveTicket gs turn ticket
 
@@ -86,12 +86,12 @@ updateState gs x "ropeway"  turn = ((take (turn-1) (fst gs)) ++ [(a,x,c,d-1,e)] 
                                                                                                                                 (l,m,n,o,p,q) = getKiller gs turn
 
 
-check_valid_move::GameState -> Node -> String -> Int -> (Bool,GameState)
+check_valid_move::PlayerState -> Node -> String -> Int -> (Bool,PlayerState)
 check_valid_move gs x y turn | (node_check gs x turn ) && (ticket_exis_check gs y turn) && (match_check gs x y turn ) = (True,(updateState gs x y turn))
                              | otherwise = (False,gs)
 
 -- CHECK_VALID MOVE SHALL perform sequential checks: node check, ticket and edge match check and ticket existence check,
-move::GameState->Int->IO(GameState)
+move::PlayerState->Int->IO(PlayerState)
 move players 6 = do 
                     x_str <- getLine
                     let x = (read x_str ::Int)

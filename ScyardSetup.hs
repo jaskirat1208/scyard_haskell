@@ -12,7 +12,7 @@ state = mkGraph (zip [1..103] [1..103]) [(1,2,(1,0,1,0)), (1,3,(1,0,1,1))]
 --hillocks: Nodes from 1 to 78
 
 
---get_positions_list::GameState -> [Node]
+--get_positions_list::PlayerState -> [Node]
 
 detective_pose::Detective->Node
 detective_pose det = x where (a,x,c,d,e)=det
@@ -21,11 +21,11 @@ get_positions_list gs = (killer_pose (snd gs)) ++ (map detective_pose (fst gs))
 killer_pose::Criminal->[Node]
 killer_pose kil = [l] where (a,l,c,d,e,f) = kil
 
-tom_is_caught::GameState ->Bool
+tom_is_caught::PlayerState ->Bool
 tom_is_caught gs | find (==(head (get_positions_list gs))) (tail (get_positions_list gs)) /= Nothing = True
                  | otherwise = False
 
-game_init::GameState -> Int -> IO(Int)
+game_init::PlayerState -> Int -> IO(Int)
 game_init players x = if( tom_is_caught players == True)   then   
                             do 
                                 print "MARK IS CAUGHT. GAME ENDS"
