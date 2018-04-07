@@ -1,15 +1,18 @@
 
 
 import Graphics.Gloss
+import Graphics.Gloss.Data.ViewPort
+import Graphics.Gloss.Interface.Pure.Game
 import GeeksLand
 import Players
 
 data Quadrup a b c d = Quadrup a b c d deriving Show
 
-width, height, offset :: Int
+width, height, offset, fps :: Int
 width = 1000
 height = 1000
 offset = 100
+fps = 60
 
 myScaleX, myScaleY :: Float
 myScaleX = 650
@@ -21,7 +24,10 @@ p2 = (200, 0)
 p3 = (300, 100)
 
 
-type GameState = (PlayerState,Int)
+type AuxState = (PlayerState,Int)
+type Move = (String, Int)
+type GameState = (AuxState, Move) 
+-- type FinalGa
 
 myListPoints :: [Point]
 myListPoints = [createPoint (list_map x) | x <- [1..112]]
@@ -59,12 +65,11 @@ displayPositions ps =  map getPlayerPicture (extractTuple ps)
 
 displayTicketType::String -> [Picture]
 displayTicketType str = [translate 0 (-300) (renderTextBox 0.2 str)]
-
-temp = [ translate (275) (-300) (renderTextBox 0.2 "X")]++[ translate (300) (-300) (renderTextBox 0.2 "Y")]++[ translate (325) (-300) (renderTextBox 0.2 "Z")]++[playerPicture (createPoint (list_map 1)) "A" ]
-
+displayCurrentNumber::Int -> [Picture]
+displayCurrentNumber y = [ translate (275) (-300) (renderTextBox 0.2 (show (y `div` 100)))]++[ translate (300) (-300) (renderTextBox 0.2 (show ( (y `mod` 100) `div` 10 ) ))]++[ translate (325) (-300) (renderTextBox 0.2 (show (y `mod` 10)))]
 
 render :: GameState -> Picture
-render gs = pictures $ static_images  ++ (displayPositions (fst gs)) ++ (displayPlayerData (fst gs) (snd gs)) ++ (displayTicketType "Black") ++ temp
+render gs = pictures $ static_images  ++ (displayPositions ((fst.fst) gs)) ++ (displayPlayerData ((fst.fst) gs) ((snd.fst) gs)) ++ (displayTicketType ((fst.snd) gs)) ++ (displayCurrentNumber ((snd.snd) gs))
 
 displayPlayerData :: PlayerState -> Int -> [Picture]
 displayPlayerData ps 6 = [translate (-400) (-300) (renderTextBox 0.2 (getKillerString (getKiller ps 6))) ]
@@ -77,13 +82,33 @@ getDetectiveString (str, _, a, b, c) = str++" R:"++(show a)++" G:"++(show b)++" 
 getKillerString:: Criminal -> String
 getKillerString (str, _, a, b, c, d) = str++" R:"++(show a)++" G:"++(show b)++" Y:"++(show c)++" B:"++(show d)
 
-gameState = (players,6)
+gameState = ((players,6),("J",0))
 
+update::Float->GameState->GameState
+update  _ gs = gs
+
+handleKeys::Event->GameState->GameState
+handleKeys (EventKey (Char 's') _ _ _) (auxState, (a, b)) = (auxState, ("Rope Way", b))
+handleKeys (EventKey (Char 'a') _ _ _) (auxState, (a, b)) = (auxState, ("Foot", b))
+handleKeys (EventKey (Char 'd') _ _ _) (auxState, (a, b)) = (auxState, ("Heli", b))
+handleKeys (EventKey (Char 'f') _ _ _) (auxState, (a, b)) = (auxState, ("Black", b))
+handleKeys (EventKey (Char '1') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 1)`mod`1000))
+handleKeys (EventKey (Char '2') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 2)`mod`1000))
+handleKeys (EventKey (Char '3') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 3)`mod`1000))
+handleKeys (EventKey (Char '4') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 4)`mod`1000))
+handleKeys (EventKey (Char '5') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 5)`mod`1000))
+handleKeys (EventKey (Char '6') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 6)`mod`1000))
+handleKeys (EventKey (Char '7') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 7)`mod`1000))
+handleKeys (EventKey (Char '8') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 8)`mod`1000))
+handleKeys (EventKey (Char '9') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 9)`mod`1000))
+handleKeys (EventKey (Char '0') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 0)`mod`1000))
+handleKeys _ x = x
 
 main :: IO ()
 main = do
-  display window background $ render gameState 
-
+  play window background fps gameState render handleKeys update 
+  -- display window background $ render gameState 
+-- play window background fps initialState render handleKeys update
 
 createPoint::Quadrup Int Float Float Float -> (Float,Float)
 createPoint (Quadrup a b c d) = ((myScaleX*b), (myScaleY*c))
