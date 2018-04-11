@@ -29,8 +29,8 @@ type Move = (String, Int)
 type GameState = (AuxState, Move) 
 -- type FinalGa
 
-myListPoints :: [Point]
-myListPoints = [createPoint (list_map x) | x <- [1..112]]
+myListPoints :: [(Point,Int)]
+myListPoints = [(createPoint (list_map x),x) | x <- [1..112]]
 
 wonderFunction m = [createLine (list_map x) (list_map y) | (x,y) <- m ]
 
@@ -44,8 +44,8 @@ window = InWindow "Nice Window" (width, height) (offset, offset)
 background :: Color
 background  = white
 
-drawing :: (Float, Float) -> Picture
-drawing (x, y) = translate x y (circle 8)
+drawing :: ((Float, Float),Int) -> Picture
+drawing ((x, y),z) = pictures [translate x y (color (light yellow) (circleSolid 10)), translate (x-7) (y-4) (renderTextBox 0.08 (show z))  ] 
 
 colorEdges :: Color -> [Path] -> [Picture]
 colorEdges a b = map ((color a). line) b
@@ -55,7 +55,7 @@ renderTextBox x str = scale x x (text str)
 
 
 static_images :: [Picture]
-static_images =   (map drawing myListPoints)++(colorEdges red myListRedEdges)++(colorEdges green myListGreenEdges)++(colorEdges (dark yellow) myListYellowEdges)
+static_images =   (colorEdges red myListRedEdges)++(colorEdges green myListGreenEdges)++(colorEdges (dark yellow) myListYellowEdges) ++ (map drawing myListPoints) ++ []
 
 extractAllPositionLabels ps = (map (getDetectivePosition ps) [1..5] ) ++ [(getKillerPosition ps 0)] 
 extractTuple ps = zip ( map (createPoint.list_map) (extractAllPositionLabels ps)) ["A","B","C","D","E","F"]
@@ -88,21 +88,25 @@ update::Float->GameState->GameState
 update  _ gs = gs
 
 handleKeys::Event->GameState->GameState
-handleKeys (EventKey (Char 's') _ _ _) (auxState, (a, b)) = (auxState, ("Rope Way", b))
-handleKeys (EventKey (Char 'a') _ _ _) (auxState, (a, b)) = (auxState, ("Foot", b))
-handleKeys (EventKey (Char 'd') _ _ _) (auxState, (a, b)) = (auxState, ("Heli", b))
-handleKeys (EventKey (Char 'f') _ _ _) (auxState, (a, b)) = (auxState, ("Black", b))
-handleKeys (EventKey (Char '1') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 1)`mod`1000))
-handleKeys (EventKey (Char '2') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 2)`mod`1000))
-handleKeys (EventKey (Char '3') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 3)`mod`1000))
-handleKeys (EventKey (Char '4') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 4)`mod`1000))
-handleKeys (EventKey (Char '5') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 5)`mod`1000))
-handleKeys (EventKey (Char '6') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 6)`mod`1000))
-handleKeys (EventKey (Char '7') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 7)`mod`1000))
-handleKeys (EventKey (Char '8') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 8)`mod`1000))
-handleKeys (EventKey (Char '9') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 9)`mod`1000))
-handleKeys (EventKey (Char '0') _ _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 0)`mod`1000))
-handleKeys _ x = x
+handleKeys (EventKey (Char 's') Up _ _) (auxState, (a, b)) = (auxState, ("ropeway", b))
+handleKeys (EventKey (Char 'a') Up _ _) (auxState, (a, b)) = (auxState, ("foot", b))
+handleKeys (EventKey (Char 'd') Up _ _) (auxState, (a, b)) = (auxState, ("heli", b))
+handleKeys (EventKey (Char 'f') Up _ _) (auxState, (a, b)) = (auxState, ("black", b))
+handleKeys (EventKey (Char '1') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 1)`mod`1000))
+handleKeys (EventKey (Char '2') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 2)`mod`1000))
+handleKeys (EventKey (Char '3') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 3)`mod`1000))
+handleKeys (EventKey (Char '4') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 4)`mod`1000))
+handleKeys (EventKey (Char '5') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 5)`mod`1000))
+handleKeys (EventKey (Char '6') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 6)`mod`1000))
+handleKeys (EventKey (Char '7') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 7)`mod`1000))
+handleKeys (EventKey (Char '8') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 8)`mod`1000))
+handleKeys (EventKey (Char '9') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 9)`mod`1000))
+handleKeys (EventKey (Char '0') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 0)`mod`1000))
+handleKeys (EventKey (SpecialKey KeyEnter) Up _ _ ) ps = handleKeyReturn ps
+handleKeys _ s  = s
+
+handleKeyReturn ( (playerState,turn) , (a,b) ) 	|  fst (check_valid_move playerState b a turn) == True = ((snd (check_valid_move playerState b a turn) , (turn +1) `mod` 6), ("----",0))  
+												|  otherwise = ( (playerState,turn) , (a,b) )
 
 main :: IO ()
 main = do
@@ -121,6 +125,8 @@ playerPicture (x, y) str = translate (x-4) (y+10) (renderTextBox 0.1 str)
 
 getPlayerPicture::(Point,String)->Picture
 getPlayerPicture ((x, y), str) = playerPicture (x, y) str
+
+
 
 list_map::Int -> Quadrup Int Float Float Float
 list_map 1  = Quadrup 1 (-0.3) 0.5 0.0 

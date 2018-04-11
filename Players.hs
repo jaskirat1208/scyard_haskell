@@ -91,33 +91,24 @@ check_valid_move gs x y turn | (node_check gs x turn ) && (ticket_exis_check gs 
                              | otherwise = (False,gs)
 
 -- CHECK_VALID MOVE SHALL perform sequential checks: node check, ticket and edge match check and ticket existence check,
-move::PlayerState->Int->IO(PlayerState)
-move players 6 = do 
-                    x_str <- getLine
-                    let x = (read x_str ::Int)
-                    let orig_killer = snd players
-                    let new_killer = (a,x,c,d,e,f) where (a,b,c,d,e,f) = orig_killer
-                    print new_killer
-                    return (fst players,new_killer)
+-- move::PlayerState->Int->IO(PlayerState)
+-- move players 6 = do 
+--                     x_str <- getLine
+--                     let x = (read x_str ::Int)
+--                     let orig_killer = snd players
+--                     let new_killer = (a,x,c,d,e,f) where (a,b,c,d,e,f) = orig_killer
+--                     print new_killer
+--                     return (fst players,new_killer)
 
-move players y  | y>6 || y<=0 = do
-                                    print "Please enter a number between 1 to 6"
-                                    return players 
-
-                | otherwise    = do
-                                    let changed_detective = (fst players) !! (y-1)
-                                    putStrLn "Enter your destination."
-                                    x_str <- getLine
-                                    putStrLn "Please Enter your ticket(RED,BLUE,GREEN,BLACK(only for Tom))."
-                                    y_str <- getLine
-                                    let x = (read x_str ::Int)
-                                    if(not (fst (check_valid_move players x y_str y) ))
-                                        then do
-                                                print "ILLEGAL MOVE. Please move again."
-                                                move players y
-                                                return players
-                                    else
-                                        do
-                                            putStrLn "Move Complete. Final State: "
-                                            print (snd (check_valid_move players x y_str y))
-                                            return (snd (check_valid_move players x y_str y)) 
+-- move players y = do
+--     let x = (read x_str ::Int)
+--     if(not (fst (check_valid_move players x y_str y) ))
+--         then do
+--                 print "ILLEGAL MOVE. Please move again."
+--                 move players y
+--                 return players
+--     else
+--         do
+--             putStrLn "Move Complete. Final State: "
+--             print (snd (check_valid_move players x y_str y))
+--                         return (snd (check_valid_move players x y_str y)) 
