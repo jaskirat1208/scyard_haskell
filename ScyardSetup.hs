@@ -24,14 +24,3 @@ killer_pose kil = [l] where (a,l,c,d,e,f) = kil
 tom_is_caught::PlayerState ->Bool
 tom_is_caught gs | find (==(head (get_positions_list gs))) (tail (get_positions_list gs)) /= Nothing = True
                  | otherwise = False
-
-game_init::PlayerState -> Int -> IO(Int)
-game_init players x = if( tom_is_caught players == True)   then   
-                            do 
-                                print "MARK IS CAUGHT. GAME ENDS"
-                                return 1
-                        else
-                            do 
-                                new_gs <- move players (1+x)
-                                flag <- game_init new_gs ((x+1) `mod` 6)
-                                return flag

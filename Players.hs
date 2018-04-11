@@ -12,22 +12,22 @@ type Detective = (Name,Position,Foot,Ropeway, Heli)
 type Criminal = (Name,Position,Foot,Ropeway,Heli,Black_t)
 type PlayerState = ([Detective],Criminal)
 mark::Detective 
-mark = ("Mark", 2,15, 7, 10)
+mark = ("A", 2,15, 7, 10)
 
 marcus::Detective
-marcus = ("Marcus", 14, 15, 7, 10)
+marcus = ("B", 14, 15, 7, 10)
 
 mike::Detective
-mike = ("Mike", 39, 15, 7, 10)
+mike = ("C", 39, 15, 7, 10)
 
 james::Detective
-james = ("James", 45, 15, 7, 10)
+james = ("D", 45, 15, 7, 10)
 
 crick::Detective
-crick = ("Crick", 56, 15, 7, 10)
+crick = ("E", 56, 15, 7, 10)
 
 tom::Criminal
-tom = ("Tom", 87, 7, 5, 4, 2)
+tom = ("F", 87, 7, 5, 4, 2)
 
 players::PlayerState
 players = ([mark,marcus,mike,james,crick],tom)
@@ -58,6 +58,9 @@ checkKillerTicket gs turn ticket = False
 
 node_check gs node turn | turn == 6 = find (==node) (neighbors geeksland (getKillerPosition gs turn)) /= Nothing
                         | otherwise = find (==node) (neighbors geeksland (getDetectivePosition gs turn)) /= Nothing
+
+
+
 
 
 ticket_exis_check::PlayerState ->String->Int->Bool

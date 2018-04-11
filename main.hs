@@ -5,6 +5,7 @@ import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game
 import GeeksLand
 import Players
+import ScyardSetup
 
 data Quadrup a b c d = Quadrup a b c d deriving Show
 
@@ -58,10 +59,10 @@ static_images :: [Picture]
 static_images =   (colorEdges red myListRedEdges)++(colorEdges green myListGreenEdges)++(colorEdges (dark yellow) myListYellowEdges) ++ (map drawing myListPoints) ++ []
 
 extractAllPositionLabels ps = (map (getDetectivePosition ps) [1..5] ) ++ [(getKillerPosition ps 0)] 
-extractTuple ps = zip ( map (createPoint.list_map) (extractAllPositionLabels ps)) ["A","B","C","D","E","F"]
+extractTuple ps turn = zip ( map (createPoint.list_map) (extractAllPositionLabels ps)) ["A","B","C","D","E","F"]
 
-displayPositions :: PlayerState -> [Picture]
-displayPositions ps =  map getPlayerPicture (extractTuple ps)
+displayPositions :: PlayerState -> Int -> [Picture]
+displayPositions ps turn=  map getPlayerPicture (extractTuple ps turn)
 
 displayTicketType::String -> [Picture]
 displayTicketType str = [translate 0 (-300) (renderTextBox 0.2 str)]
@@ -69,9 +70,11 @@ displayCurrentNumber::Int -> [Picture]
 displayCurrentNumber y = [ translate (275) (-300) (renderTextBox 0.2 (show (y `div` 100)))]++[ translate (300) (-300) (renderTextBox 0.2 (show ( (y `mod` 100) `div` 10 ) ))]++[ translate (325) (-300) (renderTextBox 0.2 (show (y `mod` 10)))]
 
 render :: GameState -> Picture
-render gs = pictures $ static_images  ++ (displayPositions ((fst.fst) gs)) ++ (displayPlayerData ((fst.fst) gs) ((snd.fst) gs)) ++ (displayTicketType ((fst.snd) gs)) ++ (displayCurrentNumber ((snd.snd) gs))
+render gs 	| tom_is_caught ((fst.fst) gs)==False = pictures $ static_images  ++ (displayPositions ((fst.fst) gs) ((snd.fst) gs)) ++ (displayPlayerData ((fst.fst) gs) ((snd.fst) gs)) ++ (displayTicketType ((fst.snd) gs)) ++ (displayCurrentNumber ((snd.snd) gs))
+			| otherwise = Blank 
 
 displayPlayerData :: PlayerState -> Int -> [Picture]
+displayPlayerData ps 7 = [translate (-400) (-300) (renderTextBox 0.2 "GAME OVER.")]
 displayPlayerData ps 6 = [translate (-400) (-300) (renderTextBox 0.2 (getKillerString (getKiller ps 6))) ]
 displayPlayerData ps x = [translate (-400) (-300) (renderTextBox 0.2 (getDetectiveString (getDetective ps x))) ]
 
@@ -103,14 +106,15 @@ handleKeys (EventKey (Char '8') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*
 handleKeys (EventKey (Char '9') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 9)`mod`1000))
 handleKeys (EventKey (Char '0') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 0)`mod`1000))
 handleKeys (EventKey (SpecialKey KeyEnter) Up _ _ ) ps = handleKeyReturn ps
-handleKeys _ s  = s
-
-handleKeyReturn ( (playerState,turn) , (a,b) ) 	|  fst (check_valid_move playerState b a turn) == True = ((snd (check_valid_move playerState b a turn) , (turn +1) `mod` 6), ("----",0))  
-												|  otherwise = ( (playerState,turn) , (a,b) )
+handleKeys _  s = s
+handleKeyReturn::GameState -> GameState
+handleKeyReturn ( (playerState,turn) , (a,b) ) 	|  	(fst (check_valid_move playerState b a turn) == True ) && (tom_is_caught playerState == False) = ((snd (check_valid_move playerState b a turn) , 1 + (turn) `mod` 6), ("----",0))  									
+												|	tom_is_caught playerState == True = ((playerState,7),("TOM LOSE",999))
+												|  	otherwise = ( (playerState,turn) , (a,b) )
 
 main :: IO ()
 main = do
-  play window background fps gameState render handleKeys update 
+  	play window background fps gameState render handleKeys update 
   -- display window background $ render gameState 
 -- play window background fps initialState render handleKeys update
 
@@ -121,7 +125,7 @@ createLine::Quadrup Int Float Float Float -> Quadrup Int Float Float Float -> Pa
 createLine (Quadrup _ a b _) (Quadrup _ c d _) = [(myScaleX*a, myScaleY*b), (myScaleX*c, myScaleY*d)]
 
 playerPicture::Point->String->Picture
-playerPicture (x, y) str = translate (x-4) (y+10) (renderTextBox 0.1 str)
+playerPicture (x, y) str = pictures [color red (translate x y (circleSolid 10)), (translate (x-3) (y-4) (renderTextBox 0.08 str))]
 
 getPlayerPicture::(Point,String)->Picture
 getPlayerPicture ((x, y), str) = playerPicture (x, y) str
