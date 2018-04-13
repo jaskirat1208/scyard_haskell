@@ -24,3 +24,4 @@ killer_pose kil = [l] where (a,l,c,d,e,f) = kil
 tom_is_caught::PlayerState ->Bool
 tom_is_caught gs | find (==(head (get_positions_list gs))) (tail (get_positions_list gs)) /= Nothing = True
                  | otherwise = False
+-- tom_is_caught gs = True

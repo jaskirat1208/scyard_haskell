@@ -6,7 +6,7 @@ import Graphics.Gloss.Interface.Pure.Game
 import GeeksLand
 import Players
 import ScyardSetup
-
+import Data.List
 data Quadrup a b c d = Quadrup a b c d deriving Show
 
 width, height, offset, fps :: Int
@@ -25,10 +25,14 @@ p2 = (200, 0)
 p3 = (300, 100)
 
 
-type AuxState = (PlayerState,Int)
+type AuxState = (PlayerState,(Int,Int))
 type Move = (String, Int)
 type GameState = (AuxState, Move) 
 -- type FinalGa
+
+showKillerTime::[Int]
+showKillerTime = [1,6,12,18,24,28]
+
 
 myListPoints :: [(Point,Int)]
 myListPoints = [(createPoint (list_map x),x) | x <- [1..112]]
@@ -39,6 +43,8 @@ myListRedEdges, myListGreenEdges, myListYellowEdges :: [Path]
 myListRedEdges = wonderFunction getRedEdges
 myListGreenEdges = wonderFunction getGreenEdges
 myListYellowEdges = wonderFunction getYellowEdges
+
+
 window :: Display
 window = InWindow "Nice Window" (width, height) (offset, offset)
 
@@ -58,20 +64,25 @@ renderTextBox x str = scale x x (text str)
 static_images :: [Picture]
 static_images =   (colorEdges red myListRedEdges)++(colorEdges green myListGreenEdges)++(colorEdges (dark yellow) myListYellowEdges) ++ (map drawing myListPoints) ++ []
 
-extractAllPositionLabels ps = (map (getDetectivePosition ps) [1..5] ) ++ [(getKillerPosition ps 0)] 
-extractTuple ps turn = zip ( map (createPoint.list_map) (extractAllPositionLabels ps)) ["A","B","C","D","E","F"]
+extractAllPositionLabels ps year 	| find (==year) showKillerTime /= Nothing = (map (getDetectivePosition ps) [1..5] ) ++ [(getKillerPosition ps 0)]
+									| otherwise = (map (getDetectivePosition ps) [1..5] )
+
+
+extractTuple ps year = zip ( map (createPoint.list_map) (extractAllPositionLabels ps year)) ["A","B","C","D","E","F"]
 
 displayPositions :: PlayerState -> Int -> [Picture]
-displayPositions ps turn=  map getPlayerPicture (extractTuple ps turn)
+displayPositions ps year =  map getPlayerPicture (extractTuple ps year)
 
 displayTicketType::String -> [Picture]
 displayTicketType str = [translate 0 (-300) (renderTextBox 0.2 str)]
-displayCurrentNumber::Int -> [Picture]
-displayCurrentNumber y = [ translate (275) (-300) (renderTextBox 0.2 (show (y `div` 100)))]++[ translate (300) (-300) (renderTextBox 0.2 (show ( (y `mod` 100) `div` 10 ) ))]++[ translate (325) (-300) (renderTextBox 0.2 (show (y `mod` 10)))]
+displayCurrentNumber::Int -> Int -> [Picture]
+displayCurrentNumber y turn | (turn == 6) = [ translate (275) (-300) (renderTextBox 0.2 "x")]++[ translate (300) (-300) (renderTextBox 0.2 "x")]++[ translate (325) (-300) (renderTextBox 0.2 ("x"))] 
+							| otherwise =   [ translate (275) (-300) (renderTextBox 0.2 (show (y `div` 100)))]++[ translate (300) (-300) (renderTextBox 0.2 (show ( (y `mod` 100) `div` 10 ) ))]++[ translate (325) (-300) (renderTextBox 0.2 (show (y `mod` 10)))]
 
 render :: GameState -> Picture
-render gs 	| tom_is_caught ((fst.fst) gs)==False = pictures $ static_images  ++ (displayPositions ((fst.fst) gs) ((snd.fst) gs)) ++ (displayPlayerData ((fst.fst) gs) ((snd.fst) gs)) ++ (displayTicketType ((fst.snd) gs)) ++ (displayCurrentNumber ((snd.snd) gs))
-			| otherwise = Blank 
+render gs 	| (snd.snd.fst) gs == 31 = pictures [translate (-200) 0 (renderTextBox 0.5 "GAME OVER "), translate (-270) (-100) (renderTextBox 0.5 "Well Played, Tom") ] 
+			| tom_is_caught ((fst.fst) gs)==False = pictures $ static_images  ++ (displayPositions ((fst.fst) gs) ((snd.snd.fst) gs)) ++ (displayPlayerData ((fst.fst) gs) ((fst.snd.fst) gs)) ++ (displayTicketType ((fst.snd) gs)) ++ (displayCurrentNumber ((snd.snd) gs) ((fst.snd.fst) gs))
+			| otherwise =  pictures [translate (-200) 0 (renderTextBox 0.5 "GAME OVER "), translate (-350) (-100) (renderTextBox 0.5 "Well Played, detectives") ]
 
 displayPlayerData :: PlayerState -> Int -> [Picture]
 displayPlayerData ps 7 = [translate (-400) (-300) (renderTextBox 0.2 "GAME OVER.")]
@@ -85,7 +96,7 @@ getDetectiveString (str, _, a, b, c) = str++" R:"++(show a)++" G:"++(show b)++" 
 getKillerString:: Criminal -> String
 getKillerString (str, _, a, b, c, d) = str++" R:"++(show a)++" G:"++(show b)++" Y:"++(show c)++" B:"++(show d)
 
-gameState = ((players,6),("J",0))
+gameState = ((players,(1,1)),("----",0))
 
 update::Float->GameState->GameState
 update  _ gs = gs
@@ -95,22 +106,23 @@ handleKeys (EventKey (Char 's') Up _ _) (auxState, (a, b)) = (auxState, ("ropewa
 handleKeys (EventKey (Char 'a') Up _ _) (auxState, (a, b)) = (auxState, ("foot", b))
 handleKeys (EventKey (Char 'd') Up _ _) (auxState, (a, b)) = (auxState, ("heli", b))
 handleKeys (EventKey (Char 'f') Up _ _) (auxState, (a, b)) = (auxState, ("black", b))
-handleKeys (EventKey (Char '1') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 1)`mod`1000))
-handleKeys (EventKey (Char '2') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 2)`mod`1000))
-handleKeys (EventKey (Char '3') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 3)`mod`1000))
-handleKeys (EventKey (Char '4') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 4)`mod`1000))
-handleKeys (EventKey (Char '5') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 5)`mod`1000))
-handleKeys (EventKey (Char '6') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 6)`mod`1000))
-handleKeys (EventKey (Char '7') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 7)`mod`1000))
-handleKeys (EventKey (Char '8') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 8)`mod`1000))
-handleKeys (EventKey (Char '9') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 9)`mod`1000))
-handleKeys (EventKey (Char '0') Up _ _) (auxState, (a, b)) = (auxState, (a, (10*b + 0)`mod`1000))
+--Numeric keys
+handleKeys (EventKey (Char '1') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 1)`mod`1000))
+handleKeys (EventKey (Char '2') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 2)`mod`1000))
+handleKeys (EventKey (Char '3') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 3)`mod`1000))
+handleKeys (EventKey (Char '4') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 4)`mod`1000))
+handleKeys (EventKey (Char '5') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 5)`mod`1000))
+handleKeys (EventKey (Char '6') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 6)`mod`1000))
+handleKeys (EventKey (Char '7') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 7)`mod`1000))
+handleKeys (EventKey (Char '8') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 8)`mod`1000))
+handleKeys (EventKey (Char '9') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 9)`mod`1000))
+handleKeys (EventKey (Char '0') Up _ _) ((playerState,(turn,year)), (a, b)) = ((playerState,(turn,year)), (a, (10*b + 0)`mod`1000))
 handleKeys (EventKey (SpecialKey KeyEnter) Up _ _ ) ps = handleKeyReturn ps
 handleKeys _  s = s
 handleKeyReturn::GameState -> GameState
-handleKeyReturn ( (playerState,turn) , (a,b) ) 	|  	(fst (check_valid_move playerState b a turn) == True ) && (tom_is_caught playerState == False) = ((snd (check_valid_move playerState b a turn) , 1 + (turn) `mod` 6), ("----",0))  									
-												|	tom_is_caught playerState == True = ((playerState,7),("TOM LOSE",999))
-												|  	otherwise = ( (playerState,turn) , (a,b) )
+handleKeyReturn ( (playerState,(turn,year)) , (a,b) ) 	|  	(fst (check_valid_move playerState b a turn) == True ) && (tom_is_caught playerState == False) = ((snd (check_valid_move playerState b a turn) , (1 + (turn) `mod` 6,if turn == 6 then (year+1) else year)), ("----",0))  									
+														|	tom_is_caught playerState == True = ((playerState,(7,year)),("TOM LOSE",999))
+														|  	otherwise = ( (playerState,(turn,year)) , (a,b) )
 
 main :: IO ()
 main = do

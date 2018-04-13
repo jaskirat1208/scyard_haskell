@@ -2,6 +2,7 @@ module Players where
 import Data.Graph.Inductive
 import GeeksLand 
 import Data.List
+import System.Random
 type Name  = String
 type Foot= Int
 type Ropeway= Int
@@ -11,23 +12,30 @@ type Position = Node
 type Detective = (Name,Position,Foot,Ropeway, Heli)
 type Criminal = (Name,Position,Foot,Ropeway,Heli,Black_t)
 type PlayerState = ([Detective],Criminal)
+
+-- randomNumber = randomRIO(1,112)
+
+-- generate mylist = let i = randomNumber in
+--     if (find (==i) mylist) then (generate mylist) else (generate i:mylist)
+randomPoly st = map (\x -> 1+(x `mod` 112)) $ take 6 $ randoms (mkStdGen st) :: [Node]
+
 mark::Detective 
-mark = ("A", 2,15, 7, 10)
+mark = ("A", (randomPoly 10) !! 1,15, 7, 10)
 
 marcus::Detective
-marcus = ("B", 14, 15, 7, 10)
+marcus = ("B", (randomPoly 10) !! 2, 15, 7, 10)
 
 mike::Detective
-mike = ("C", 39, 15, 7, 10)
+mike = ("C", (randomPoly 10) !! 0, 15, 7, 10)
 
 james::Detective
-james = ("D", 45, 15, 7, 10)
+james = ("D", (randomPoly 10) !! 3, 15, 7, 10)
 
 crick::Detective
-crick = ("E", 56, 15, 7, 10)
+crick = ("E", (randomPoly 10) !! 4, 15, 7, 10)
 
 tom::Criminal
-tom = ("F", 87, 7, 5, 4, 2)
+tom = ("F", (randomPoly 10) !! 5, 7, 5, 4, 2)
 
 players::PlayerState
 players = ([mark,marcus,mike,james,crick],tom)
